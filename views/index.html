@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html ng-app="todoModule">
+  <head>
+    <title>待办事项列表</title>
+    <meta charset="utf-8">
+    <!--响应式-->
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel='stylesheet' href='../public/lib/bootstrap/dist/css/bootstrap.css' />
+    <link rel='stylesheet' href='/lib/bootstrap/dist/css/bootstrap.css' />
+  </head>
+  <body  style="margin-top:50px;" ng-controller="todoCtrl">
+  <!--自动适应屏幕大小并居中显示-->
+    <div class="container">
+      <!--巨幕   字体居中显示-->
+      <div class="jumbotron text-center">
+        <h1><label class="label label-info">你有{{todos.length}}个待办事项</label></h1>
+      </div>
+
+      <!--待办事项列表-->
+      <div class="row">
+        <!--向左偏倚4格 宽度4格-->
+        <div class="col-md-offset-2 col-md-8">
+          <!--全选按钮-->
+          <button class="btn btn-success" style="margin-bottom: 20px;">全选</button>
+          <!--利用ng-repeat来循环待办事项-->
+          <ul class="list-group">
+            <li class="list-group-item" ng-repeat="todo in todos">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox">{{todo.text}}
+                  <span class="glyphicon glyphicon-trash"></span>
+                </label>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!--新增待办事项区域-->
+      <div class="row">
+        <!--向左偏倚2格 宽度8格-->
+        <div class="col-md-offset-2 col-md-8 text-center">
+          <form>
+            <!--表格中元素组-->
+            <div class="form-group">
+              <label for="text">新的事项</label>
+              <input type="text" id="text" class="form-control" ng-model="todo.text">
+            </div>
+            <!--表格中元素组-->
+            <div class="form-group">
+              <button class="btn btn-primary" ng-click="addTodo()">增加</button>
+              <button class="btn btn-primary" ng-click="batchDelete()">批量删除</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+  <!--引用js-->
+  <script src="/lib/jquery/dist/jquery.js"></script>
+  <script src="/lib/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="/lib/angular/angular.js"></script>
+  <!--js脚本-->
+  <script type="text/javascript">
+    angular.module('todoModule',[]);
+//    factory可以用来定义一个服务
+    angular.module('todoModule').factory('todoService',function($http){
+      return{
+        list:function(){
+           return $http.get('/todos');
+        },
+        add:function(data){
+          return $http.post('/todos',data)
+        }
+      }
+    });
+    angular.module('todoModule').controller('todoCtrl',function($scope,todoService){
+//      $scope.todos = [{_id:1,text:'买宝马'},{_id:2,text:'吃大餐'}];
+//      待办事件列表
+      todoService.list().success(function(todos){
+        $scope.todos = todos;
+      });
+      $scope.todo = {};
+      $scope.addTodo = function(){
+        todoService.add($scope.todo).success(function(todo){
+          $scope.todos.push(todo);
+        })
+      }
+    });
+  </script>
+</html>
